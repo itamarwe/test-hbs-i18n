@@ -1,0 +1,8 @@
+*.un~
+*.json~
+*.*~
+*.coffee~
+*.mustach~
+.js~
+
+node_modules/
