@@ -45,7 +45,8 @@ app.configure ->
 
   # setting the local for the request
   app.use (req, res, next) ->
-    i18n.setLocale i18n.getLocale req
+    locale = i18n.getLocale req
+    i18n.setLocale locale
     do next
 
   # The Express router  
