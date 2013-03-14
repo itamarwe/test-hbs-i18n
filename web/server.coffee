@@ -43,17 +43,34 @@ app.configure ->
   # the locale middleware
   app.use i18n.init
 
-  # setting the local for the request
+  # setting the local for the request => not needed as this is normally done by i18n.init
+  # app.use (req, res, next) ->
+  #   locale = i18n.getLocale req
+  #   i18n.setLocale locale
+  #   do next
+
+  # binding helpers to request
   app.use (req, res, next) ->
-    locale = i18n.getLocale req
-    i18n.setLocale locale
+    i18n__i = ->
+      return i18n.__.apply(req, arguments);
+    i18n__n = ->
+      return i18n.__n.apply(req, arguments);
+
+    # for direct use in methods
+    res.__n = i18n__n;
+    res.__i = i18n__i;
+
+    # and (this is the important part) for use in templates (express 3.x way)
+    res.locals.__n = i18n__n;
+    res.locals.__i = i18n__i;
+
     do next
 
-  # The Express router  
+  # The Express router
   app.use app.router
 
-# Register template helpers
-(require './lib/registerHelpers')(hbs, i18n)
+# Register template helpers => not needed see app.use inside app.configure
+# (require './lib/registerHelpers')(hbs, i18n)
 
 # Routes/Controllers
 app.get '/', (req, res) ->
@@ -67,8 +84,8 @@ app.get '/:locale', (req, res) ->
   res.cookie 'locale', req.params.locale
   delay = req.query.delay ? 0
   res.redirect "/?delay=#{delay}"
-  
+
 # Start the server
 server.listen 3000
-console.log "Express server listening on port #{server.address().port} 
+console.log "Express server listening on port #{server.address().port}
 in #{app.settings.env} mode"
